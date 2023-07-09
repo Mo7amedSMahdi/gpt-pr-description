@@ -204,10 +204,6 @@ def main():
         return 1
     pull_request_data = json.loads(pull_request_result.text)
 
-    # if pull_request_data["body"]:
-    #     print("Pull request already has a description, skipping")
-    #     return 0
-
     if allowed_users:
         pr_author = pull_request_data["user"]["login"]
         if pr_author not in allowed_users:
