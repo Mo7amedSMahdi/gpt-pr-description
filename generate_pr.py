@@ -183,6 +183,9 @@ Go straight to the point.
 The title of the pull request is "{pull_request_title}" and the following changes took place: \n
 """
     for pull_request_file in pull_request_files:
+        # Exclude package-lock.json from the diff
+        if pull_request_file["filename"] == "package-lock.json":
+            continue
         # Not all PR file metadata entries may contain a patch section
         # For example, entries related to removed binary files may not contain it
         if "patch" not in pull_request_file:
