@@ -192,7 +192,7 @@ The title of the pull request is "{pull_request_title}" and the following change
         patch = pull_request_file["patch"]
         completion_prompt += f"Changes in file {filename}: {patch}\n"
 
-    max_allowed_tokens = 3000  # 4096 is the maximum allowed by OpenAI for GPT-3.5
+    max_allowed_tokens = 2000  # 4096 is the maximum allowed by OpenAI for GPT-3.5
     characters_per_token = 4  # The average number of characters per token
     max_allowed_characters = max_allowed_tokens * characters_per_token
     if len(completion_prompt) > max_allowed_characters:
