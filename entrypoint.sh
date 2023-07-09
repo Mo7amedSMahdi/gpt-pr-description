@@ -13,7 +13,7 @@ else
   pull_request_id="$INPUT_PULL_REQUEST_ID"
 fi
 
-/action/autofill_description.py \
+/action/generate_pr.py \
   --github-api-url "$GITHUB_API_URL" \
   --github-repository "$GITHUB_REPOSITORY" \
   --pull-request-id "$pull_request_id" \
