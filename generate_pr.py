@@ -12,38 +12,126 @@ Go straight to the point.
 
 The title of the pull request is "Enable valgrind on CI" and the following changes took place: 
 
-Changes in file .github/workflows/build-ut-coverage.yml: @@ -24,6 +24,7 @@ jobs:
-         run: |
-           sudo apt-get update
-           sudo apt-get install -y lcov
-+          sudo apt-get install -y valgrind
-           sudo apt-get install -y ${{ matrix.compiler.cc }}
-           sudo apt-get install -y ${{ matrix.compiler.cxx }}
-       - name: Checkout repository
-@@ -48,3 +49,7 @@ jobs:
-         with:
-           files: coverage.info
-           fail_ci_if_error: true
-+      - name: Run valgrind
-+        run: |
-+          valgrind --tool=memcheck --leak-check=full --leak-resolution=med \
-+            --track-origins=yes --vgdb=no --error-exitcode=1 ${build_dir}/test/command_parser_test
-Changes in file test/CommandParserTest.cpp: @@ -566,7 +566,7 @@ TEST(CommandParserTest, ParsedCommandImpl_WhenArgumentIsSupportedNumericTypeWill
-     unsigned long long expectedUnsignedLongLong { std::numeric_limits<unsigned long long>::max() };
-     float expectedFloat { -164223.123f }; // std::to_string does not play well with floating point min()
-     double expectedDouble { std::numeric_limits<double>::max() };
--    long double expectedLongDouble { std::numeric_limits<long double>::max() };
-+    long double expectedLongDouble { 123455678912349.1245678912349L };
+Changes in file diff --git a/src/pages/login/index.jsx b/src/pages/login/index.jsx
+index 4762570..3120b52 100644
+--- a/src/pages/login/index.jsx
++++ b/src/pages/login/index.jsx
+@@ -4,17 +4,15 @@ import Card from '@mui/material/Card';
+ import CardContent from '@mui/material/CardContent';
+ import Typography from '@mui/material/Typography';
+ import TextField from '@mui/material/TextField';
+-import { Button, InputAdornment } from '@mui/material';
++import { InputAdornment } from '@mui/material';
+ import { LoadingButton } from '@mui/lab';
+ import VisibilityIcon from '@mui/icons-material/Visibility';
+ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+ import loginImg from '../../assets/images/login.png';
+ import Background from '../../assets/images/backgroundLogin.png';
+-// import Auth from '../auth/models/authModel';
+ import authUser from '../auth/models/authModel';
+ import { toast } from 'react-toastify';
+ import { useNavigate } from 'react-router-dom';
+-import { useAppContext } from '../../context/AppContext';
  
-     auto command = UnparsedCommand::create(expectedCommand, "dummyDescription"s)
-                        .withArgs<int, long, unsigned long, long long, unsigned long long, float, double, long double>();
+ export default function Login() {
+   const [showPassword, setShowPassword] = React.useState(false);
+@@ -24,7 +22,6 @@ export default function Login() {
+   const navigate = useNavigate();
+ 
+   const handleLogin = async () => {
+-    // const authInstance = new Auth();
+     setLoading(true);
+     await authUser
+       .signIn(email, password)
+diff --git a/theme/index.js b/theme/index.js
+index ad95e1c..0be6be7 100644
+--- a/theme/index.js
++++ b/theme/index.js
+@@ -180,6 +180,49 @@ const theme = createTheme({
+               marginLeft: '5px',
+             },
+           },
++          '&.text-area': {
++            '& .MuiInputBase-root': {
++              paddingInline: '1.5rem',
++              fontWeight: 400,
++              fontSize: '1.25rem',
++              color: '#969696',
++              '& label': {
++                marginLeft: '1.5rem',
++                color: colors.gray,
++              },
++              '& input': {
++                zIndex: 1,
++              },
++              '& textarea': {
++                zIndex: 1,
++              },
++              '& fieldset': {
++                borderRadius: '20px !important',
++                borderColor: 'none',
++                border: 'none ',
++                backgroundColor: colors.whiteGray,
++                '& legend': {
++                  marginLeft: '1.5rem',
++                },
++              },
++              '&:hover fieldset': {
++                borderColor: colors.blue,
++              },
++              '&.Mui-focused fieldset': {
++                borderColor: colors.blue,
++                borderWidth: '1px',
++                borderStyle: 'solid',
++              },
++            },
++            '& .MuiSelect-select': {
++              zIndex: 1,
++            },
++            '& .MuiTypography-root': {
++              zIndex: 1,
++              color: colors.gray,
++              marginLeft: '5px',
++            },
++          },
+           '& label.Mui-focused': {
+             color: colors.blue,
+           },
+@@ -222,6 +265,16 @@ const theme = createTheme({
+         },
+       },
+     },
++    MuiDialogActions: {
++      styleOverrides: {
++        root: {
++          display: 'flex',
++          justifyContent: 'space-between',
++          alignItems: 'center',
++          paddingInline: '0px',
++        },
++      },
++    },
+   },
+ });
 """
 
 GOOD_SAMPLE_RESPONSE = """
-Currently, our CI build does not include Valgrind as part of the build and test process. Valgrind is a powerful tool for detecting memory errors, and its use is essential for maintaining the integrity of our project.
-This pull request adds Valgrind to the CI build, so that any memory errors will be detected and reported immediately. This will help to prevent undetected memory errors from making it into the production build.
+# Pull Request Description
 
-Overall, this change will improve the quality of the project by helping us detect and prevent memory errors.
+## :rocket: feat: Remove unused dependencies and commented code in login page
+
+- Removed unused `Button` component import from `@mui/material`.
+- Removed commented code that imported `Auth` from `../auth/models/authModel`.
+- Removed unused import of `useAppContext` from `../../context/AppContext`.
+
+ℹ️ The changes were done to clean up the code and remove unnecessary dependencies and commented code that were not being used.
+
+## :wrench: Fix import and render issues in main.jsx
+
+- Fixed import issues in `main.jsx` where the `App` component was not correctly imported.
+- Fixed rendering issues in `main.jsx` by using `ReactDOM.createRoot` instead of `ReactDOM.render`.
+- Updated code to use `LazyApp` instead of directly importing the `App` component.
+- Added `ReactQueryDevtools` to `main.jsx`.
 """
 
 
@@ -116,9 +204,9 @@ def main():
         return 1
     pull_request_data = json.loads(pull_request_result.text)
 
-    if pull_request_data["body"]:
-        print("Pull request already has a description, skipping")
-        return 0
+    # if pull_request_data["body"]:
+    #     print("Pull request already has a description, skipping")
+    #     return 0
 
     if allowed_users:
         pr_author = pull_request_data["user"]["login"]
